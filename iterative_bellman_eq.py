@@ -74,10 +74,13 @@ for r_ in range(R):
             c_p = c_ + delta[1]
             if r_p >= R or r_p < 0 or c_p >= C or c_p < 0:
                 next_block = -1
+                P_pi[r_ * C + c_][r_ * C + c_] += pi[r_ * C + c_][a]
             else:
                 next_block = blocks[r_p][c_p]
-                P_pi[r_ * C + c_][r_p * C + c_p] = pi[r_ * C + c_][a]
+                P_pi[r_ * C + c_][r_p * C + c_p] += pi[r_ * C + c_][a]
             r[r_ * C + c_] += pi[r_ * C + c_][a] * next_block
+
+assert np.all(np.sum(P_pi, axis = 0) == 1.)
 
 gamma = 0.9
 
@@ -86,7 +89,7 @@ v = np.ones((R * C, 1))
 
 for iter in range(1000):
     temp_v = r + gamma * P_pi @ v
-    v_2d = temp_v.reshape(R, C)
+    v_2d = np.round(temp_v.reshape(R, C), decimals=1)
     print(f'After iter {iter} State Values:\n{v_2d}')
     max_delta = abs(np.max(v - temp_v))
     v = temp_v
